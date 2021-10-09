@@ -35,3 +35,42 @@ resource "aws_instance" "web" {
   # 設定をbase64にしてencode
   user_data = base64encode(data.template_file.web_shell.rendered)
 }
+
+
+# APサーバー設定
+
+data "template_file" "ap_shell" {
+  template = file("${path.module}/ap.sh.tpl")
+}
+
+# APサーバーの構築
+
+resource "aws_instance" "ap" {
+  ami = data.aws_ami.amzn2.id
+
+  instance_type = "t2.micro"
+
+  key_name = aws_key_pair.auth_priv.id
+
+  iam_instance_profile = aws_iam_instance_profile.ec2_profile.name
+
+  subnet_id = aws_subnet.private_a.id
+
+  vpc_security_group_ids = [aws_security_group.priv_a.id]
+
+  root_block_device {
+    # ボリュームの種類を指定
+    volume_type = "gp2"
+    volume_size = 8
+    # インスタンス削除時にボリュームも併せて削除する
+    delete_on_termination = true
+  }
+
+  tags = {
+    Name="ap-instance"
+  }
+
+  # 初めにdata化したweb.sh.tplを参照
+  # 設定をbase64にしてencode
+  user_data = base64encode(data.template_file.ap_shell.rendered)
+}
