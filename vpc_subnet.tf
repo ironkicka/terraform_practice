@@ -31,3 +31,44 @@ resource "aws_subnet" "private_a" {
     Name="priv-a"
   }
 }
+
+# RDS用 Subnet
+
+# ap-northeast-1aのアベイラビリティゾーンにRDS用のサブネットを構築
+resource "aws_subnet" "dbsub_a" {
+
+  # サブネットを構築するVPCのIDを設定
+  vpc_id     = aws_vpc.vpc.id
+
+  # サブネットが使用するcidrを設定
+  # VPCの範囲内でSubnetに割り当てるCIDRを区切る
+  cidr_block = "10.0.3.0/24"
+
+  # サブネットを配置するアベイラビリティゾーンを東京リージョン1aに設定
+  availability_zone = "ap-northeast-1a"
+
+  # タグを設定
+  tags = {
+    Name = "db-subnet-1a"
+  }
+}
+
+# ap-northeast-1cのアベイラビリティゾーンにRDS用のサブネットを構築
+
+resource "aws_subnet" "dbsub_c" {
+
+  # サブネットを構築するVPCのIDを設定
+  vpc_id     = aws_vpc.vpc.id
+
+  # サブネットが使用するcidrを設定
+  # VPCの範囲内でSubnetに割り当てるCIDRを区切る
+  cidr_block = "10.0.4.0/24"
+
+  # サブネットを配置するアベイラビリティゾーンを東京リージョン1aに設定
+  availability_zone = "ap-northeast-1c"
+
+  # タグを設定
+  tags = {
+    Name = "db-subnet-1c"
+  }
+}

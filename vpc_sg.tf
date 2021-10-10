@@ -117,3 +117,45 @@ resource "aws_security_group_rule" "ingress_priv_a_22" {
   # このルールを付与するセキュリティグループの設定
   security_group_id = aws_security_group.priv_a.id
 }
+
+
+# RDSがAPサーバーから3306ポートを利用した通信を受け入れるSG設定
+
+resource "aws_security_group" "rds_sg" {
+
+  name = "rds-sg"
+
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name="rds-sg"
+  }
+}
+
+# 出ていく通信の設定
+
+resource "aws_security_group_rule" "egress_rds_sg" {
+  type="egress"
+
+  # ポートの範囲設定
+  from_port = 0
+  to_port = 0
+
+  protocol  = "-1"
+
+  cidr_blocks = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.rds_sg.id
+}
+
+# 3306ポートを受け入れる設定
+resource "aws_security_group_rule" "ingress_rds_3306" {
+  type="ingress"
+
+  from_port         = "3306"
+  to_port           = "3306"
+
+  protocol          = "tcp"
+  # Webサーバーを配置しているサブネットのCIDRを設定
+  cidr_blocks = ["10.0.2.0/24"]
+  security_group_id = aws_security_group.rds_sg.id
+}
